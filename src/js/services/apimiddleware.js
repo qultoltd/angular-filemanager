@@ -1,6 +1,6 @@
 (function(angular) {
     'use strict';
-    angular.module('FileManagerApp').service('apiMiddleware', ['$window', 'fileManagerConfig', 'apiHandler', 
+    angular.module('FileManagerApp').service('apiMiddleware', ['$window', 'fileManagerConfig', 'apiHandler',
         function ($window, fileManagerConfig, ApiHandler) {
 
         var ApiMiddleware = function() {
@@ -21,8 +21,8 @@
             return item && item.model.fullPath();
         };
 
-        ApiMiddleware.prototype.list = function(path, customDeferredHandler) {
-            return this.apiHandler.list(fileManagerConfig.listUrl, this.getPath(path), customDeferredHandler);
+        ApiMiddleware.prototype.list = function(path, customDeferredHandler, modifiedSince) {
+            return this.apiHandler.list(fileManagerConfig.listUrl, this.getPath(path), customDeferredHandler, modifiedSince);
         };
 
         ApiMiddleware.prototype.copy = function(files, path) {
@@ -40,6 +40,11 @@
             var items = this.getFileList(files);
             return this.apiHandler.remove(fileManagerConfig.removeUrl, items);
         };
+
+        ApiMiddleware.prototype.checkBeforeRemove = function(files) {
+          var items = this.getFileList(files);
+          return this.apiHandler.checkBeforeRemove(fileManagerConfig.checkBeforeRemoveUrl, items);
+        }
 
         ApiMiddleware.prototype.upload = function(files, path) {
             if (! $window.FormData) {
@@ -77,15 +82,17 @@
             //TODO: add spinner to indicate file is downloading
             var itemPath = this.getFilePath(item);
             var toFilename = item.model.name;
+            var objectId = item.model.objectId;
 
             if (item.isFolder()) {
                 return;
             }
-            
+
             return this.apiHandler.download(
-                fileManagerConfig.downloadFileUrl, 
+                fileManagerConfig.downloadFileUrl,
                 itemPath,
                 toFilename,
+                objectId,
                 fileManagerConfig.downloadFilesByAjax,
                 forceNewWindow
             );
@@ -95,11 +102,11 @@
             var items = this.getFileList(files);
             var timestamp = new Date().getTime().toString().substr(8, 13);
             var toFilename = timestamp + '-' + fileManagerConfig.multipleDownloadFileName;
-            
+
             return this.apiHandler.downloadMultiple(
-                fileManagerConfig.downloadMultipleUrl, 
-                items, 
-                toFilename, 
+                fileManagerConfig.downloadMultipleUrl,
+                items,
+                toFilename,
                 fileManagerConfig.downloadFilesByAjax,
                 forceNewWindow
             );
@@ -127,6 +134,22 @@
         ApiMiddleware.prototype.createFolder = function(item) {
             var path = item.tempModel.fullPath();
             return this.apiHandler.createFolder(fileManagerConfig.createFolderUrl, path);
+        };
+
+        ApiMiddleware.prototype.startReportGeneration = function(report) {
+            return this.apiHandler.startReportGeneration(fileManagerConfig.reportGenerationUrl, report);
+        };
+
+        ApiMiddleware.prototype.startBatchReportGeneration = function(report) {
+            return this.apiHandler.startBatchReportGeneration(fileManagerConfig.batchReportGenerationUrl, report);
+        };
+
+        ApiMiddleware.prototype.listReports = function(path) {
+            return this.apiHandler.listReports(fileManagerConfig.reportListUrl, path);
+        };
+
+        ApiMiddleware.prototype.isAuthenticated = function(path) {
+            return this.apiHandler.isAuthenticated(fileManagerConfig.authenticationUrl);
         };
 
         return ApiMiddleware;

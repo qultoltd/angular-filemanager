@@ -12,16 +12,16 @@
         };
 
         ApiHandler.prototype.deferredHandler = function(data, deferred, code, defaultMsg) {
-            if (!data || typeof data !== 'object') {
+            if ((!data || typeof data !== 'object') && !defaultMsg) {
                 this.error = 'Error %s - Bridge response error, please check the API docs or this ajax response.'.replace('%s', code);
             }
             if (code == 404) {
                 this.error = 'Error 404 - Backend bridge is not working, please check the ajax response.';
             }
-            if (data.result && data.result.error) {
+            if (data && data.result && data.result.error) {
                 this.error = data.result.error;
             }
-            if (!this.error && data.error) {
+            if (!this.error && data && data.error) {
                 this.error = data.error.message;
             }
             if (!this.error && defaultMsg) {
@@ -33,15 +33,17 @@
             return deferred.resolve(data);
         };
 
-        ApiHandler.prototype.list = function(apiUrl, path, customDeferredHandler, exts) {
+        ApiHandler.prototype.list = function(apiUrl, path, customDeferredHandler, modifiedSince) {
             var self = this;
             var dfHandler = customDeferredHandler || self.deferredHandler;
             var deferred = $q.defer();
             var data = {
                 action: 'list',
-                path: path,
-                fileExtensions: exts && exts.length ? exts : undefined
+                path: path
             };
+            if (modifiedSince) {
+              data.modifiedSince = modifiedSince;
+            }
 
             self.inprocess = true;
             self.error = '';
@@ -68,7 +70,7 @@
             if (singleFilename && items.length === 1) {
                 data.singleFilename = singleFilename;
             }
-            
+
             self.inprocess = true;
             self.error = '';
             $http.post(apiUrl, data).success(function(data, code) {
@@ -121,6 +123,26 @@
             return deferred.promise;
         };
 
+        ApiHandler.prototype.checkBeforeRemove = function(apiUrl, items) {
+            var self = this;
+            var deferred = $q.defer();
+            var data = {
+                action: 'remove',
+                items: items
+            };
+
+            self.inprocess = true;
+            self.error = '';
+            $http.post(apiUrl, data).success(function(data, code) {
+                self.deferredHandler(data, deferred, code);
+            }).error(function(data, code) {
+                self.deferredHandler(data, deferred, code, $translate.instant('error_delete_check'));
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+            return deferred.promise;
+        };
+
         ApiHandler.prototype.upload = function(apiUrl, destination, files) {
             var self = this;
             var deferred = $q.defer();
@@ -155,7 +177,7 @@
             return deferred.promise;
         };
 
-        ApiHandler.prototype.getContent = function(apiUrl, itemPath) {            
+        ApiHandler.prototype.getContent = function(apiUrl, itemPath) {
             var self = this;
             var deferred = $q.defer();
             var data = {
@@ -217,23 +239,24 @@
             return deferred.promise;
         };
 
-        ApiHandler.prototype.getUrl = function(apiUrl, path) {
+        ApiHandler.prototype.getUrl = function(apiUrl, path, objectId) {
             var data = {
                 action: 'download',
-                path: path
+                path: path,
+                objectId: objectId
             };
             return path && [apiUrl, $.param(data)].join('?');
         };
 
-        ApiHandler.prototype.download = function(apiUrl, itemPath, toFilename, downloadByAjax, forceNewWindow) {
+        ApiHandler.prototype.download = function(apiUrl, itemPath, toFilename, objectId, downloadByAjax, forceNewWindow) {
             var self = this;
-            var url = this.getUrl(apiUrl, itemPath);
+            var url = this.getUrl(apiUrl, itemPath, objectId);
 
             if (!downloadByAjax || forceNewWindow || !$window.saveAs) {
                 !$window.saveAs && $window.console.log('Your browser dont support ajax download, downloading by default');
                 return !!$window.open(url, '_blank', '');
             }
-            
+
             var deferred = $q.defer();
             self.inprocess = true;
             $http.get(url).success(function(data) {
@@ -262,7 +285,7 @@
                 !$window.saveAs && $window.console.log('Your browser dont support ajax download, downloading by default');
                 return !!$window.open(url, '_blank', '');
             }
-            
+
             self.inprocess = true;
             $http.get(apiUrl).success(function(data) {
                 var bin = new $window.Blob([data]);
@@ -330,7 +353,7 @@
                 permsCode: permsCode,
                 recursive: !!recursive
             };
-            
+
             self.inprocess = true;
             self.error = '';
             $http.post(apiUrl, data).success(function(data, code) {
@@ -356,13 +379,111 @@
             $http.post(apiUrl, data).success(function(data, code) {
                 self.deferredHandler(data, deferred, code);
             }).error(function(data, code) {
-                self.deferredHandler(data, deferred, code, $translate.instant('error_creating_folder'));
+              if (code == 409) {
+                  self.deferredHandler(data, deferred, code, $translate.instant('error_creating_folder_already_exists'));
+              } else {
+                  self.deferredHandler(data, deferred, code, $translate.instant('error_creating_folder'));
+              }
             })['finally'](function() {
                 self.inprocess = false;
             });
-        
+
             return deferred.promise;
         };
+
+        ApiHandler.prototype.startReportGeneration = function(apiUrl, report) {
+            var self = this;
+            var deferred = $q.defer();
+            var data = report;
+
+            self.inprocess = true;
+            self.error = '';
+            $http.post(apiUrl, data).success(function(data, code) {
+                self.deferredHandler({result: data}, deferred, code);
+            }).error(function(data, code) {
+              if (code === 409) {
+                self.deferredHandler(data, deferred, code, $translate.instant('error_not_unique_report_name'));
+              } else {
+                self.deferredHandler(data, deferred, code, $translate.instant('error_starting_report_generation'));
+              }
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+
+            return deferred.promise;
+        };
+
+
+        ApiHandler.prototype.startBatchReportGeneration = function(apiUrl, report) {
+            var self = this;
+            var deferred = $q.defer();
+            var data = report;
+
+            self.inprocess = true;
+            self.error = '';
+            $http.post(apiUrl, data).success(function(data, code) {
+                self.deferredHandler({result: data}, deferred, code);
+            }).error(function(data, code) {
+                self.deferredHandler(data, deferred, code, $translate.instant('error_starting_batch_report_generation'));
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+
+            return deferred.promise;
+        };
+
+        ApiHandler.prototype.listReports = function(apiUrl, path) {
+            var self = this;
+            var deferred = $q.defer();
+
+            var request = {
+               method: 'POST',
+               url: apiUrl,
+               headers: {
+                 'Content-Type': 'text/plain'
+               },
+               data: path
+            };
+
+            self.inprocess = true;
+            self.error = '';
+            $http(request).success(function(data, code) {
+                self.deferredHandler({result: data}, deferred, code);
+            }).error(function(data, code) {
+                self.deferredHandler(data, deferred, code, $translate.instant('error_listing_reports'));
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+
+            return deferred.promise;
+        };
+
+        ApiHandler.prototype.isAuthenticated = function(apiUrl) {
+            var self = this;
+            var deferred = $q.defer();
+
+            if (apiUrl === undefined || apiUrl === '') {
+              return deferred.promise;
+            }
+
+            var request = {
+               method: 'GET',
+               url: apiUrl
+            };
+
+            self.inprocess = true;
+            self.error = '';
+            $http(request).success(function(data, code) {
+                self.deferredHandler({result: data}, deferred, code);
+            }).error(function(data, code) {
+                self.deferredHandler(data, deferred, code, $translate.instant('error_authenticating_user'));
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+
+            return deferred.promise;
+        };
+
 
         return ApiHandler;
 

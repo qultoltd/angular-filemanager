@@ -1,13 +1,13 @@
 (function(angular, $) {
     'use strict';
     angular.module('FileManagerApp').controller('FileManagerCtrl', [
-        '$scope', '$rootScope', '$window', '$translate', 'fileManagerConfig', 'item', 'fileNavigator', 'apiMiddleware',
-        function($scope, $rootScope, $window, $translate, fileManagerConfig, Item, FileNavigator, ApiMiddleware) {
+        '$scope', '$rootScope', '$window', '$translate', '$location', '$interval', '$filter', 'fileManagerConfig', 'item', 'fileNavigator', 'apiMiddleware',
+        function($scope, $rootScope, $window, $translate, $location, $interval, $filter, fileManagerConfig, Item, FileNavigator, ApiMiddleware) {
 
         var $storage = $window.localStorage;
         $scope.config = fileManagerConfig;
         $scope.reverse = false;
-        $scope.predicate = ['model.type', 'model.name'];        
+        $scope.predicate = ['model.type', 'model.name'];
         $scope.order = function(predicate) {
             $scope.reverse = ($scope.predicate[1] === predicate) ? !$scope.reverse : false;
             $scope.predicate[1] = predicate;
@@ -23,6 +23,12 @@
         $scope.$watch('temps', function() {
             if ($scope.singleSelection()) {
                 $scope.temp = $scope.singleSelection();
+                $scope.isReportOpen = true;
+                $scope.isDescriptionOpen = true;
+                if ($scope.temp.model.path && $scope.temp.model.type === 'file' && $scope.temp.model.processingStatus === 'processed') {
+                  //TODO: option to turn this off
+                  $scope.listReports();
+                }
             } else {
                 $scope.temp = new Item({rights: 644});
                 $scope.temp.multiple = true;
@@ -34,6 +40,8 @@
             $scope.temps = [];
             $scope.query = '';
             $rootScope.selectedModalPath = $scope.fileNavigator.currentPath;
+          /*  var pathString = $rootScope.selectedModalPath.join('/')
+            $location.search({'path': pathString});*/
         };
 
         $scope.setTemplate = function(name) {
@@ -112,6 +120,12 @@
             });
         };
 
+        $scope.selectionHasOtherStatusThan = function(status) {
+            return $scope.temps.find(function(item) {
+                return item && item.model.processingStatus !== status;
+            });
+        };
+
         $scope.prepareNewFolder = function() {
             var item = new Item(null, $scope.fileNavigator.currentPath);
             $scope.temps = [item];
@@ -134,10 +148,10 @@
             if (item.isImage()) {
                 if ($scope.config.previewImagesInModal) {
                     return $scope.openImagePreview(item);
-                } 
+                }
                 return $scope.apiMiddleware.download(item, true);
             }
-            
+
             if (item.isEditable()) {
                 return $scope.openEditItem(item);
             }
@@ -165,11 +179,27 @@
         };
 
         $scope.modal = function(id, hide, returnElement) {
+          if(id === 'remove' && !hide) {
+            $scope.apiMiddleware.checkBeforeRemove($scope.temps).then(function(response) {
+                $scope.removePreviewResult = response;
+                var element = $('#' + id);
+                element.modal('show');
+                $scope.apiMiddleware.apiHandler.error = '';
+                $scope.apiMiddleware.apiHandler.asyncSuccess = false;
+                return returnElement ? element : true;
+            });
+          } else {
+            if(id === 'startreportgeneration' && !hide) {
+              $scope.report = { reportName: $scope.singleSelection().model.name + ' - ' + $filter('date')(new Date(), 'yyyy-MM-dd HH:mm:ss'), reportSettings: {} };
+            } else if(id === 'startbatchreportgeneration' && !hide) {
+              $scope.report = { reportSettings: {} };
+            }
             var element = $('#' + id);
             element.modal(hide ? 'hide' : 'show');
             $scope.apiMiddleware.apiHandler.error = '';
             $scope.apiMiddleware.apiHandler.asyncSuccess = false;
             return returnElement ? element : true;
+          }
         };
 
         $scope.modalWithPathSelector = function(id) {
@@ -190,7 +220,6 @@
 
         $scope.changePermissions = function() {
             $scope.apiMiddleware.changePermissions($scope.temps, $scope.temp).then(function() {
-                $scope.fileNavigator.refresh();
                 $scope.modal('changepermissions', true);
             });
         };
@@ -211,12 +240,11 @@
             if (item) {
                 var name = item.tempModel.name.trim();
                 var nameExists = $scope.fileNavigator.fileNameExists(name);
-                if (nameExists && validateSamePath(item)) {
-                    $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
-                    return false;
-                }
                 if (!name) {
                     $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
+                    return false;
+                } else if (nameExists && validateSamePath(item)) {
+                    $scope.apiMiddleware.apiHandler.error = $translate.instant('error_existing_filename');
                     return false;
                 }
             }
@@ -230,12 +258,11 @@
             var name = $scope.temp.tempModel.name.trim();
             var nameExists = $scope.fileNavigator.fileNameExists(name);
 
-            if (nameExists && validateSamePath($scope.temp)) {
-                $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
-                return false;
-            }
             if (!name) {
                 $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
+                return false;
+            } else if (nameExists && validateSamePath($scope.temp)) {
+                $scope.apiMiddleware.apiHandler.error = $translate.instant('error_existing_filename');
                 return false;
             }
 
@@ -255,12 +282,11 @@
             var name = $scope.temp.tempModel.name.trim();
             var nameExists = $scope.fileNavigator.fileNameExists(name);
 
-            if (nameExists && validateSamePath($scope.temp)) {
-                $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
-                return false;
-            }
             if (!name) {
                 $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
+                return false;
+            } else if (nameExists && validateSamePath($scope.temp)) {
+                $scope.apiMiddleware.apiHandler.error = $translate.instant('error_existing_filename');
                 return false;
             }
 
@@ -282,7 +308,7 @@
             });
         };
 
-        $scope.move = function() {           
+        $scope.move = function() {
             var anyItem = $scope.singleSelection() || $scope.temps[0];
             if (anyItem && validateSamePath(anyItem)) {
                 $scope.apiMiddleware.apiHandler.error = $translate.instant('error_cannot_move_same_path');
@@ -298,10 +324,15 @@
             var item = $scope.singleSelection();
             var name = item.tempModel.name;
             var samePath = item.tempModel.path.join('') === item.model.path.join('');
-            if (!name || (samePath && $scope.fileNavigator.fileNameExists(name))) {
+
+            if (!name) {
                 $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
                 return false;
+            } else if (samePath && $scope.fileNavigator.fileNameExists(name)) {
+              $scope.apiMiddleware.apiHandler.error = $translate.instant('error_existing_filename');
+              return false;
             }
+
             $scope.apiMiddleware.rename(item).then(function() {
                 $scope.fileNavigator.refresh();
                 $scope.modal('rename', true);
@@ -311,8 +342,10 @@
         $scope.createFolder = function() {
             var item = $scope.singleSelection();
             var name = item.tempModel.name;
-            if (!name || $scope.fileNavigator.fileNameExists(name)) {
-                return $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
+            if (!name) {
+              return $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
+            } else if ($scope.fileNavigator.fileNameExists(name)) {
+              return $scope.apiMiddleware.apiHandler.error = $translate.instant('error_creating_folder_already_exists');
             }
             $scope.apiMiddleware.createFolder(item).then(function() {
                 $scope.fileNavigator.refresh();
@@ -335,9 +368,113 @@
                 $scope.uploadFileList = [];
                 $scope.modal('uploadfile', true);
             }, function(data) {
-                var errorMsg = data.result && data.result.error || $translate.instant('error_uploading_files');
+                var errorMsg = $translate.instant('error_uploading_files');
+                if (data && data.result && data.result.error) {
+                  errorMsg = data.result.error;
+                }
+                if(data && data.result && data.result.status == 409) {
+                  errorMsg = $translate.instant('error_uploading_files_file_already_exists');
+                }
                 $scope.apiMiddleware.apiHandler.error = errorMsg;
             });
+        };
+
+        $scope.prepareReportGeneration = function() {
+          $scope.modalFileNavigator = new FileNavigator();
+          //$scope.modalFileNavigator.initCurrentPath($scope.fileNavigator.currentPath);
+        }
+
+        $scope.startReportGeneration = function(report) {
+          $scope.reportStartSubmitted = true;
+          if (!report.reportName) {
+            $scope.apiMiddleware.apiHandler.error = $translate.instant('REPORT_GENERATION_MODAL.REPORT_NAME_IS_REQUIRED');
+            return;
+          } else if(!report.reportSettings.myFiles && !report.reportSettings.institutionFiles
+            && !report.reportSettings.webResources) {
+            $scope.apiMiddleware.apiHandler.error = $translate.instant('REPORT_GENERATION_MODAL.REPORT_TARGET_REQUIRED');
+            return;
+          }
+          var path = $scope.temps[0].model.fullPath();
+          var name = $scope.temps[0].model.name;
+
+          report.filePath = path;
+          report.fileName = name;
+
+          $scope.apiMiddleware.startReportGeneration(report).then(function() {
+              $scope.fileNavigator.refresh();
+              $scope.modal('startreportgeneration', true);
+          });
+        };
+
+
+        $scope.startBatchReportGeneration = function(report) {
+          $scope.batchReportStartSubmitted = true;
+          if(!report.reportSettings.myFiles && !report.reportSettings.institutionFiles
+            && !report.reportSettings.webResources) {
+            $scope.apiMiddleware.apiHandler.error = $translate.instant('REPORT_GENERATION_MODAL.REPORT_TARGET_REQUIRED');
+            return;
+          }
+          var list = [];
+          angular.forEach($scope.temps, function(temp) {
+            list.push({
+              path: temp.model.fullPath(),
+              name: temp.model.name
+            })
+          });
+          report.selectedDocuments = list;
+
+          $scope.apiMiddleware.startBatchReportGeneration(report).then(function() {
+              $scope.fileNavigator.refresh();
+              $scope.modal('startbatchreportgeneration', true);
+          });
+        };
+
+        $scope.listReports = function() {
+          var path = $scope.temps[0].model.fullPath();
+
+          $scope.apiMiddleware.listReports(path).then(function(response) {
+            $scope.currentReports = response.result;
+            $scope.isReportOpen = true;
+            $scope.isDescriptionOpen = true;
+            $scope.reportLimit = 2;
+            $scope.isLimited = true;
+              // $scope.fileNavigator.refresh();
+          });
+        };
+
+        $scope.getReportLimit = function() {
+          return ($scope.isLimited || !$scope.currentReports) ? $scope.reportLimit: $scope.currentReports.length;
+        };
+
+        $scope.toggleFullReportList = function() {
+          $scope.isLimited = !$scope.isLimited;
+        };
+
+        $scope.openReport = function(reportId) {
+          $location.path(fileManagerConfig.reportViewBasePath + reportId);
+        };
+
+        $scope.shouldDescriptionBeOpen = function() {
+          return $scope.temps.length == 1 && $scope.temps[0].model && $scope.temps[0].model.name;
+        };
+
+        $scope.allowActionsWithSingleSelection = function () {
+            return $scope.temps.length === 1 && $scope.temps[0] && $scope.temps[0].model && $scope.temps[0].model.base != true;
+        };
+
+        $scope.allowActionsWithMultiSelection = function () {
+            var returnValue = true;
+            if($scope.temps.length > 1) {
+                angular.forEach($scope.temps, function (temp){
+
+                    if(temp.model && temp.model.base && temp.model.base == true) {
+                        returnValue = false;
+                    }
+                });
+            } else {
+                return false;
+            }
+            return returnValue;
         };
 
         var validateSamePath = function(item) {
@@ -348,14 +485,106 @@
 
         var getQueryParam = function(param) {
             var found = $window.location.search.substr(1).split('&').filter(function(item) {
-                return param ===  item.split('=')[0];
+                return param === item.split('=')[0];
             });
             return found[0] && found[0].split('=')[1] || undefined;
         };
 
         $scope.changeLanguage(getQueryParam('lang'));
         $scope.isWindows = getQueryParam('server') === 'Windows';
+
+        /*if($location.search() && $location.search().path) {
+
+          var pathValue = $location.search().path;
+          var params = pathValue.split("/");
+
+
+          if(typeof $location.search().path === 'string') {
+            params.push($location.search().path);
+          } else {
+            params = $location.search().path;
+          }
+          $scope.fileNavigator.initCurrentPath(params);
+        }*/
+
         $scope.fileNavigator.refresh();
+
+        $scope.refreshList = function() {
+          $scope.fileNavigator.refresh();
+        }
+
+        $scope.getClassForScore = function(score) {
+          var classForScore = 'badge ';
+          if (score < 0.25) {
+            classForScore = classForScore + 'low';
+          } else if (score < 0.5) {
+            classForScore = classForScore + 'medium';
+          } else if (score < 0.75) {
+            classForScore = classForScore + 'high';
+          } else if (score <= 1.0) {
+            classForScore = classForScore + 'very-high';
+          }
+          return classForScore;
+        }
+
+        $scope.update = $interval(function () {
+          $scope.fileNavigator.updateStatus();
+        }, 10000);
+
+        $scope.stopUpdate = function() {
+          if (angular.isDefined($scope.update)) {
+            $interval.cancel($scope.update);
+            $scope.update = undefined;
+          }
+        }
+
+        $scope.translateDirName = function(dirName) {
+          var item = findItemInHistory(dirName, $scope.fileNavigator.history);
+
+          return $scope.translateItem(item);
+        }
+
+        function findItemInHistory(dirName, historyObject) {
+          var item;
+          for(var o in historyObject) {
+            if(item != undefined) {
+              break;
+            }
+            var currentNode = historyObject[o];
+            if (currentNode.name.split('/').pop() === dirName) {
+              item = currentNode.item;
+            } else if(currentNode.nodes && currentNode.nodes.length > 0) {
+              item = findItemInHistory(dirName, currentNode.nodes);
+            }
+          }
+          return item;
+        }
+
+        $scope.translateItem = function(item) {
+
+          if(!item && !item.model && !item.model.name) {
+            return;
+          }
+          if(!item.model.base) {
+            return item.model.name;
+          }
+          if(item.model.name) {
+            var nameToTranslate = item.model.name;
+            if(nameToTranslate.indexOf(':') > -1) {
+              var endIndex = nameToTranslate.indexOf(':');
+              nameToTranslate = nameToTranslate.substring(0, endIndex);
+            }
+            var result = $translate.instant(nameToTranslate, item.model.nameVariables);
+            return result;
+          }
+        }
+
+        $scope.$on('$destroy', function() {
+          // Make sure that the interval is destroyed too
+          $scope.stopUpdate();
+        });
+
+        // $interval(function(){ $scope.refreshList() }, 5000);
 
     }]);
 })(angular, jQuery);

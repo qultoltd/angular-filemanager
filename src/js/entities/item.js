@@ -4,18 +4,26 @@
 
         var Item = function(model, path) {
             var rawModel = {
+                objectId: model && model.objectId || '',
                 name: model && model.name || '',
+                nameVariables: model && model.nameVariables,
                 path: path || [],
                 type: model && model.type || 'file',
                 size: model && parseInt(model.size || 0),
-                date: parseMySQLDate(model && model.date),
+                /*creationDate: parseMySQLDate(model && model.creationDate),*/
+                creationDate: model && new Date(model.creationDate),
+                modificationDate: model && new Date(model.modificationDate),
                 perms: new Chmod(model && model.rights),
                 content: model && model.content || '',
                 recursive: false,
                 fullPath: function() {
                     var path = this.path.filter(Boolean);
                     return ('/' + path.join('/') + '/' + this.name).replace(/\/\//, '/');
-                }
+                },
+                order: model && parseInt(model.order || 0),
+                base: model && model.base,
+                processingStatus: model && model.processingStatus,
+                owner: model && model.owner
             };
 
             this.error = '';

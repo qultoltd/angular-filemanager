@@ -7,32 +7,24 @@
             this.apiMiddleware = new ApiMiddleware();
             this.requesting = false;
             this.fileList = [];
-            this.currentPath = this.getBasePath();
+            this.currentPath = [];
             this.history = [];
             this.error = '';
 
             this.onRefresh = function() {};
         };
 
-        FileNavigator.prototype.getBasePath = function() {
-            var path = (fileManagerConfig.basePath || '').replace(/^\//, '');
-            return path.trim() ? path.split('/') : [];
-        };
-
         FileNavigator.prototype.deferredHandler = function(data, deferred, code, defaultMsg) {
-            if (!data || typeof data !== 'object') {
+            if ((!data || typeof data !== 'object') && !defaultMsg) {
                 this.error = 'Error %s - Bridge response error, please check the API docs or this ajax response.'.replace('%s', code);
             }
             if (code == 404) {
                 this.error = 'Error 404 - Backend bridge is not working, please check the ajax response.';
             }
-            if (code == 200) {
-                this.error = null;
-            }
-            if (!this.error && data.result && data.result.error) {
+            if (data && data.result && data.result.error) {
                 this.error = data.result.error;
             }
-            if (!this.error && data.error) {
+            if (!this.error && data && data.error) {
                 this.error = data.error.message;
             }
             if (!this.error && defaultMsg) {
@@ -44,14 +36,18 @@
             return deferred.resolve(data);
         };
 
-        FileNavigator.prototype.list = function() {
-            return this.apiMiddleware.list(this.currentPath, this.deferredHandler.bind(this));
+        FileNavigator.prototype.list = function(modifiedSince) {
+            return this.apiMiddleware.list(this.currentPath, this.deferredHandler.bind(this), modifiedSince);
+        };
+
+        FileNavigator.prototype.initCurrentPath = function(newPath) {
+            return this.currentPath = newPath;
         };
 
         FileNavigator.prototype.refresh = function() {
             var self = this;
-            if (! self.currentPath.length) {
-                self.currentPath = this.getBasePath();
+            if (self.currentPath === undefined || self.currentPath.length === undefined || self.currentPath.length === 0) {
+                self.currentPath = [];
             }
             var path = self.currentPath.join('/');
             self.requesting = true;
@@ -66,7 +62,51 @@
                 self.requesting = false;
             });
         };
-        
+
+
+        FileNavigator.prototype.updateStatus = function() {
+          var self = this;
+            //Is user logged in?
+            self.apiMiddleware.isAuthenticated().then(function(response) {
+              if (response.result === undefined || response.result.userId === undefined) {
+                return;
+              }
+              if (self.currentPath === undefined || self.currentPath.length === undefined || self.currentPath.length === 0) {
+                  self.currentPath = [];
+              }
+              var path = self.currentPath.join('/');
+              //self.requesting = true;
+              //self.fileList = [];
+              var modifiedSince = new Date().getTime() - 10000;
+              return self.list(modifiedSince).then(function(data) {
+                if(data.result && data.result.length > 0) {
+                  angular.forEach(data.result, function(currentFile) {
+                    angular.forEach(self.fileList, function(fileItem) {
+                      if(fileItem.model.name === currentFile.name) {
+                        fileItem.model.modificationDate = new Date(currentFile.modificationDate);
+                        //fileItem.model.reportModificationDate = new Date(currentFile.reportModificationDate);
+                        fileItem.model.processingStatus = currentFile.processingStatus;
+                        //fileItem.model.hasReport = currentFile.hasReport;
+                      }
+                    });
+                  });
+                }
+
+                  /*self.fileList = (data.result || []).map(function(file) {
+                      return new Item(file, self.currentPath);
+                  });
+                  self.buildTree(path);
+                  self.onRefresh();*/
+              }).finally(function() {
+                  //self.requesting = false;
+              });
+            }, function(error) {
+
+            })
+
+
+        };
+
         FileNavigator.prototype.buildTree = function(path) {
             var flatNodes = [], selectedNode = {};
 
@@ -87,7 +127,7 @@
                     }
                     parent.nodes.push({item: item, name: absName, nodes: []});
                 }
-                
+
                 parent.nodes = parent.nodes.sort(function(a, b) {
                     return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : a.name.toLowerCase() === b.name.toLowerCase() ? 0 : 1;
                 });
@@ -107,7 +147,7 @@
             }
 
             //!this.history.length && this.history.push({name: '', nodes: []});
-            !this.history.length && this.history.push({ name: this.getBasePath()[0] || '', nodes: [] });
+            !this.history.length && this.history.push({ name: '', nodes: [] });
             flatten(this.history[0], flatNodes);
             selectedNode = findNode(flatNodes, path);
             selectedNode && (selectedNode.nodes = []);
@@ -140,7 +180,7 @@
 
         FileNavigator.prototype.fileNameExists = function(fileName) {
             return this.fileList.find(function(item) {
-                return fileName && item.model.name.trim() === fileName.trim();
+                return fileName.trim && item.model.name.trim() === fileName.trim();
             });
         };
 
@@ -148,10 +188,6 @@
             return this.fileList.find(function(item) {
                 return item.model.type === 'dir';
             });
-        };
-
-        FileNavigator.prototype.getCurrentFolderName = function() {
-            return this.currentPath.slice(-1)[0] || '/';
         };
 
         return FileNavigator;

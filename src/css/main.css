@@ -406,7 +406,7 @@ table th > a:focus {
   font-size: 17px;
   margin: 12px 0;
   overflow: hidden;
-  max-height: 30px
+  max-height: 45px
 }
 
 .breadcrumb>.active,

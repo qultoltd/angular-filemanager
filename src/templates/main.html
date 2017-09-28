@@ -4,11 +4,17 @@
     <div class="container-fluid">
         <div class="row">
 
-            <div class="col-sm-4 col-md-3 sidebar file-tree animated slow fadeIn" ng-include="config.tplPath + '/sidebar.html'" ng-show="config.sidebar &amp;&amp; fileNavigator.history[0]">
+            <div class="hidden-xs col-sm-4 col-md-2 sidebar file-tree animated slow fadeIn" ng-include="config.tplPath + '/sidebar.html'"
+              ng-show="config.sidebar &amp;&amp; fileNavigator.history[0]">
             </div>
 
-            <div class="main" ng-class="config.sidebar &amp;&amp; fileNavigator.history[0] &amp;&amp; 'col-sm-8 col-md-9'">
+            <div class="main" ng-class="[{'col-sm-8 col-md-8' : (config.sidebar &amp;&amp; fileNavigator.history[0] &amp;&amp; shouldDescriptionBeOpen())},
+            {'col-sm-8 col-md-10' : (config.sidebar &amp;&amp; fileNavigator.history[0] &amp;&amp; !shouldDescriptionBeOpen())}]">
                 <div ng-include="config.tplPath + '/' + viewTemplate" class="main-navigation clearfix"></div>
+            </div>
+
+            <div class="description hidden-xs hidden-sm col-md-2" ng-if="shouldDescriptionBeOpen()">
+                <div ng-include="config.tplPath + '/description.html'" class="main-navigation clearfix"></div>
             </div>
         </div>
     </div>

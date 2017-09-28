@@ -12,6 +12,7 @@
             copyUrl: 'bridges/php/handler.php',
             moveUrl: 'bridges/php/handler.php',
             removeUrl: 'bridges/php/handler.php',
+            checkBeforeRemoveUrl: '',
             editUrl: 'bridges/php/handler.php',
             getContentUrl: 'bridges/php/handler.php',
             createFolderUrl: 'bridges/php/handler.php',
@@ -20,7 +21,11 @@
             compressUrl: 'bridges/php/handler.php',
             extractUrl: 'bridges/php/handler.php',
             permissionsUrl: 'bridges/php/handler.php',
-            basePath: '/',
+            reportGenerationUrl: '',
+            batchReportGenerationUrl: '',
+            reportListUrl: '',
+            reportViewBasePath: '',
+            authenticationUrl: '',
 
             searchForm: true,
             sidebar: true,
@@ -41,11 +46,11 @@
                 remove: true,
                 createFolder: true,
                 pickFiles: false,
-                pickFolders: false
+                pickFolders: false,
+                reportgeneration: false
             },
 
             multipleDownloadFileName: 'angular-filemanager.zip',
-            filterFileExtensions: [],
             showExtensionIcons: true,
             showSizeForDirectories: false,
             useBinarySizePrefixes: false,

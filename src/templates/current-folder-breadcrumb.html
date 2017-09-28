@@ -1,15 +1,16 @@
 <ol class="breadcrumb">
-    <li>
+    <!--<li>
         <a href="" ng-click="fileNavigator.goTo(-1)">
-            {{"filemanager" | translate}}
+            {{ config.appName }}
         </a>
-    </li>
+    </li>-->
+
     <li ng-repeat="(key, dir) in fileNavigator.currentPath track by key" ng-class="{'active':$last}" class="animated fast fadeIn">
         <a href="" ng-show="!$last" ng-click="fileNavigator.goTo(key)">
-            {{dir | strLimit : 8}}
+            {{ translateDirName(dir) | strLimit : 30}}
         </a>
         <span ng-show="$last">
-            {{dir | strLimit : 12}}
+            {{ translateDirName(dir) }}
         </span>
     </li>
 </ol>

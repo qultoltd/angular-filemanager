@@ -1,20 +1,24 @@
 <ul class="nav nav-sidebar file-tree-root">
-    <li ng-repeat="item in fileNavigator.history" ng-include="'folder-branch-item'" ng-class="{'active': item.name == fileNavigator.currentPath.join('/')}"></li>
+<li ng-repeat="item in fileNavigator.history | orderBy:['item.model.order','name'] track by $index" ng-include="'folder-branch-item'"
+    ng-class="{'active': item.name == fileNavigator.currentPath.join('/')}">
+    </li>
 </ul>
 
 <script type="text/ng-template" id="folder-branch-item">
-    <a href="" ng-click="fileNavigator.folderClick(item.item)" class="animated fast fadeInDown">
-
+    <a href="" ng-click="fileNavigator.folderClick(item.item)" class="animated fast fadeInDown" ng-if="item.name != ''">
         <span class="point">
             <i class="glyphicon glyphicon-chevron-down" ng-show="isInThisPath(item.name)"></i>
             <i class="glyphicon glyphicon-chevron-right" ng-show="!isInThisPath(item.name)"></i>
         </span>
-
-        <i class="glyphicon glyphicon-folder-open mr2" ng-show="isInThisPath(item.name)"></i>
-        <i class="glyphicon glyphicon-folder-close mr2" ng-show="!isInThisPath(item.name)"></i>
-        {{ (item.name.split('/').pop() || fileNavigator.getBasePath().join('/') || '/') | strLimit : 30 }}
+        <i class="glyphicon glyphicon-folder-open mr2" ng-show="isInThisPath(item.name) && item.name !== 'user' && item.name !== 'organizations'"></i>
+        <i class="glyphicon glyphicon-folder-close mr2" ng-show="!isInThisPath(item.name) && item.name !== 'user' && item.name !== 'organizations'"></i>
+        <i class="glyphicon glyphicon-user mr2" ng-show="item.name === 'user'"></i>
+        <i class="fa fa-university" ng-show="item.name === 'organizations'"></i>
+        <span ng-if="item.item.model.base == true">{{ translateItem(item.item) | strLimit : 60 }}</span>
+        <span ng-if="item.item.model.base != true">{{ (item.name.split('/').pop() || '/') | strLimit : 60 }}</span>
     </a>
     <ul class="nav nav-sidebar">
-        <li ng-repeat="item in item.nodes" ng-include="'folder-branch-item'" ng-class="{'active': item.name == fileNavigator.currentPath.join('/')}"></li>
+        <li ng-repeat="item in item.nodes | orderBy:['item.model.order','name'] track by $index" ng-include="'folder-branch-item'" ng-class="{'active': item.name == fileNavigator.currentPath.join('/')}">
+        </li>
     </ul>
 </script>

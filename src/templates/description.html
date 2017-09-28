@@ -1,0 +1,99 @@
+<div ng-cloak class="details">
+
+  <uib-accordion close-others="false" class="accordion-custom">
+    <div uib-accordion-group class="panel-default"
+      ng-if="temps[0].model.type === 'file' && temps[0].model.processingStatus === 'processed'"
+      is-open="isReportOpen">
+      <uib-accordion-heading>
+        {{ 'report' | translate }}
+      </uib-accordion-heading>
+      <div class="text-center">
+        <button tabindex="-1" class="btn btn-primary btn-xs" ng-click="modal('startreportgeneration') && prepareReportGeneration()">
+          <i class="glyphicon glyphicon-play"></i> {{'startreportgeneration' | translate}}
+        </button>
+      </div>
+      <div class="report-data" ng-repeat="report in currentReports | orderBy:'-startTime' | limitTo:getReportLimit() track by $index" ng-if="currentReports">
+        <div class="row">
+          <div class="col-sm-12">
+            {{ report.reportName }}
+            <span ng-if="report.reportStatus === 'SUCCESS'" ng-class="getClassForScore(report.overallScore)">{{ report.overallScore * 100 | number:0}}%</span>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12">
+              <label>{{ 'startTime' | translate }}</label>
+          </div>
+          <div class="col-sm-12">
+              {{ report.startTime | date:'yyyy-MM-dd HH:mm:ss' }}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-12">
+              <label>{{ 'REPORT_STATUS.NAME' | translate }}</label>
+          </div>
+          <div class="col-sm-12">
+              {{ 'REPORT_STATUS.' + report.reportStatus | translate }}
+          </div>
+        </div>
+
+        <div class="text-center">
+          <button tabindex="-1" class="btn btn-default btn-xs" ng-click="openReport(report.reportId)" ng-disabled="report.reportStatus !== 'SUCCESS'">
+            {{'view_report' | translate}}
+          </button>
+        </div>
+      </div>
+      <div ng-if="currentReports.length > reportLimit && isLimited"><a href="" ng-click="toggleFullReportList()">{{ 'showmorereports' | translate}}</a></div>
+      <div ng-if="currentReports.length > reportLimit && !isLimited"><a href="" ng-click="toggleFullReportList()">{{ 'showlessreports' | translate}}</a></div>
+    </div>
+    <div uib-accordion-group class="panel-default accordion-custom"
+      is-open="isDescriptionOpen">
+      <uib-accordion-heading>
+        {{ 'description' | translate }}
+      </uib-accordion-heading>
+      <div class="row">
+        <div class="col-sm-12">
+            <label>{{ 'name' | translate }}</label>
+        </div>
+
+        <div class="col-sm-12 filename">
+            {{ temps.length ? (temps[0].model.name | translate) : "" }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+            <label>{{ 'owner' | translate }}</label>
+        </div>
+
+        <div class="col-sm-12">
+            {{ temps.length ? temps[0].model.owner : "" }}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+            <label>{{ 'size' | translate }}</label>
+        </div>
+
+        <div class="col-sm-12">
+            {{ temps.length ?
+              (temps[0].model.size | humanReadableFileSize)  : "" }}
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col-sm-12">
+            <label>{{ 'date' | translate }}</label>
+        </div>
+
+        <div class="col-sm-12">
+            {{ temps.length ?
+              (temps[0].model.creationDate | date:'yyyy-MM-dd HH:mm:ss') : "" }}
+        </div>
+      </div>
+    </div>
+  </uib-accordion>
+</div>
