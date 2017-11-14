@@ -15,9 +15,17 @@
             if ((!data || typeof data !== 'object') && !defaultMsg) {
                 this.error = 'Error %s - Bridge response error, please check the API docs or this ajax response.'.replace('%s', code);
             }
+            
             if (code == 404) {
                 this.error = 'Error 404 - Backend bridge is not working, please check the ajax response.';
             }
+
+            /*if (code == 403) {
+                
+                console.log("403 error occured.");
+                this.error = 'You can not upload file(s) into the root folder.';
+            }*/
+
             if (data && data.result && data.result.error) {
                 this.error = data.result.error;
             }
@@ -27,6 +35,20 @@
             if (!this.error && defaultMsg) {
                 this.error = defaultMsg;
             }
+
+            if(data != null) {
+
+                if(typeof data !== 'object') {
+                    
+                    data = {
+                        result: data,
+                        code: code
+                    };
+                } else {
+                    data.code = code;
+                }
+            }
+
             if (this.error) {
                 return deferred.reject(data);
             }
@@ -164,7 +186,7 @@
                     data: data
                 }).then(function (data) {
                     self.deferredHandler(data.data, deferred, data.status);
-                }, function (data) {
+                }, function (data) {                    
                     self.deferredHandler(data.data, deferred, data.status, 'Unknown error uploading files');
                 }, function (evt) {
                     self.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total)) - 1;
