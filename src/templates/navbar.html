@@ -3,9 +3,9 @@
         <div class="row">
           <div class="col-xs-6 col-sm-4 col-md-2">
             <div class="navbar-collapse">
-                <div class="navbar-form text-center">
+                <div class="navbar-form">
                   <!-- Dropdown button -->
-                  <div class="btn-group">
+                  <div class="btn-group navbar-padding-left">
                     <button type="button" class="btn btn-primary btn-xs" ng-click="modal('uploadfile')">{{'upload_files' | translate}}</button>
                     <button type="button" class="btn btn-primary dropdown-toggle btn-xs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       <span class="caret"></span>
@@ -22,17 +22,37 @@
               </div>
             </div>
           </div>
-            <div class="col-sm-5 col-md-8 hidden-xs">
+            <div class="col-sm-5 col-md-7 hidden-xs">
                 <div ng-show="!config.breadcrumb">
                     <a class="navbar-brand hidden-xs ng-binding" href="">angular-filemanager</a>
                 </div>
                 <div ng-include="config.tplPath + '/current-folder-breadcrumb.html'" ng-show="config.breadcrumb">
                 </div>
             </div>
-            <div class="col-xs-6 col-sm-3 col-md-2">
+            <div class="col-xs-6 col-sm-3 col-md-3">
                 <div class="navbar-collapse">
                     <div class="navbar-form navbar-right text-right">
 
+                        <button class="btn btn-flat btn-sm" ng-click="modal('remove')" title="{{'remove' | translate}}"
+                            ng-show="config.allowedActions.remove && (allowActionsWithSingleSelection() || allowActionsWithMultiSelection())">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+
+                        <button class="btn btn-flat btn-sm" ng-click="download()" title="{{'download' | translate}}"
+                                ng-show="config.allowedActions.download && !selectionHas('dir') && singleSelection()">
+                            <i class="glyphicon glyphicon-cloud-download"></i>
+                        </button>
+
+                        <button class="btn btn-flat btn-sm" ng-click="modal('startreportgeneration')" title="{{'startbatchreportgeneration' | translate}}"
+                            ng-show="config.allowedActions.reportgeneration && singleSelection() && !singleSelection().isFolder() && singleSelection().model.processingStatus === 'processed'">
+                            <i class="glyphicon glyphicon-play"></i>
+                        </button>
+                        
+                        <button class="btn btn-flat btn-sm" ng-click="smartClick(singleSelection())" title="{{'open' | translate}}"
+                            ng-show="singleSelection() && singleSelection().isFolder()">
+                            <i class="glyphicon glyphicon-folder-open"></i>
+                        </button>
+                        
                         <div class="btn-group" uib-dropdown auto-close="outsideClick">
                             <button class="btn btn-flat btn-sm dropdown-toggle" type="button" id="dropDownMenuLang" uib-dropdown-toggle
                               aria-expanded="true">

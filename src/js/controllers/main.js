@@ -363,12 +363,22 @@
         };
 
         $scope.uploadFiles = function() {
+            for(var idx in $scope.fileNavigator.fileList){
+                for(var id in $scope.uploadFileList){
+                    if($scope.fileNavigator.fileList[idx].model.name ===  $scope.uploadFileList[id].name){
+                        return $scope.apiMiddleware.apiHandler.error = $translate.instant('error_creating_folder_already_exists');
+                    }
+                }
+            }
             $scope.apiMiddleware.upload($scope.uploadFileList, $scope.fileNavigator.currentPath).then(function() {
                 $scope.fileNavigator.refresh();
                 $scope.uploadFileList = [];
                 $scope.modal('uploadfile', true);
             }, function(data) {
                 var errorMsg = $translate.instant('error_uploading_files');
+                if(data && data.result && data.result.status == 403) {
+                    errorMsg = $translate.instant('error_uploading_files_root');
+                  }
                 if (data && data.result && data.result.error) {
                   errorMsg = data.result.error;
                 }
@@ -378,6 +388,11 @@
                 $scope.apiMiddleware.apiHandler.error = errorMsg;
             });
         };
+
+        $scope.emptyList = function(){
+            $scope.uploadFileList = [];
+            $('#uploadfile').modal('hide');
+        }
 
         $scope.prepareReportGeneration = function() {
           $scope.modalFileNavigator = new FileNavigator();

@@ -444,3 +444,7 @@ table th > a:focus {
   height: 18px;
   line-height: 100%;
 }
+
+.navbar-padding-left {
+  padding-left: 36px;
+}

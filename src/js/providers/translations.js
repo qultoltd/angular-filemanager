@@ -184,6 +184,8 @@
             error_getting_content: 'An error occurred getting the content of the file',
             error_changing_perms: 'An error occurred changing the permissions of the file',
             error_uploading_files: 'An error occurred uploading files',
+            error_uploading_files_root: 'Files cannot be uploaded to the root directory',
+            error_uploading_files_root: 'Nem tölthető fel fájl a gyökérkönyvtárba',
             sure_to_start_compression_with: 'Are you sure to compress',
             owner: 'Owner',
             group: 'Group',
