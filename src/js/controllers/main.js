@@ -371,20 +371,29 @@
                 }
             }
             $scope.apiMiddleware.upload($scope.uploadFileList, $scope.fileNavigator.currentPath).then(function() {
+                
                 $scope.fileNavigator.refresh();
                 $scope.uploadFileList = [];
                 $scope.modal('uploadfile', true);
+
             }, function(data) {
+                
+                // it's the error branch of the promise
+                
                 var errorMsg = $translate.instant('error_uploading_files');
-                if(data && data.result && data.result.status == 403) {
-                    errorMsg = $translate.instant('error_uploading_files_root');
-                  }
+                
                 if (data && data.result && data.result.error) {
                   errorMsg = data.result.error;
                 }
+                
                 if(data && data.result && data.result.status == 409) {
                   errorMsg = $translate.instant('error_uploading_files_file_already_exists');
                 }
+
+                if(data && data.code && data.code === 403) {
+                  errorMsg = $translate.instant('error_uploading_files_wrong_destination');
+                }
+
                 $scope.apiMiddleware.apiHandler.error = errorMsg;
             });
         };
