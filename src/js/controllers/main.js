@@ -552,7 +552,10 @@
         }
 
         $scope.update = $interval(function () {
-          $scope.fileNavigator.updateStatus();
+            $scope.fileNavigator.updateStatus();
+            if ($scope.singleSelection()) {
+              $scope.listReports();
+            }   
         }, 10000);
 
         $scope.stopUpdate = function() {
