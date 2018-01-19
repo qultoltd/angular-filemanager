@@ -43,10 +43,16 @@
                             <i class="glyphicon glyphicon-cloud-download"></i>
                         </button>
 
-                        <button class="btn btn-flat btn-sm" ng-click="modal('startreportgeneration')" title="{{'startbatchreportgeneration' | translate}}"
+                        <button class="btn btn-flat btn-sm" ng-click="addComment()" title="{{'comment' | translate}}"
+                            ng-show="singleSelection() && !singleSelection().isFolder() && singleSelection().model.processingStatus === 'processed'">
+                            <i class="glyphicon glyphicon-comment">
+                                <span class="comment-count">{{commentList.length}}</span>
+                            </i>
+                        </button>
+                        <!-- <button class="btn btn-flat btn-sm" ng-click="modal('startreportgeneration')" title="{{'startbatchreportgeneration' | translate}}"
                             ng-show="config.allowedActions.reportgeneration && singleSelection() && !singleSelection().isFolder() && singleSelection().model.processingStatus === 'processed'">
                             <i class="glyphicon glyphicon-play"></i>
-                        </button>
+                        </button> -->
                         
                         <button class="btn btn-flat btn-sm" ng-click="smartClick(singleSelection())" title="{{'open' | translate}}"
                             ng-show="singleSelection() && singleSelection().isFolder()">

@@ -1,8 +1,8 @@
 (function(angular, $) {
     'use strict';
     angular.module('FileManagerApp').controller('FileManagerCtrl', [
-        '$scope', '$rootScope', '$window', '$translate', '$location', '$interval', '$filter', 'fileManagerConfig', 'item', 'fileNavigator', 'apiMiddleware',
-        function($scope, $rootScope, $window, $translate, $location, $interval, $filter, fileManagerConfig, Item, FileNavigator, ApiMiddleware) {
+        '$scope', '$rootScope', '$window', '$translate', '$location', '$interval', '$filter', 'fileManagerConfig', 'item', 'fileNavigator', 'apiMiddleware', 'CommonMessagingService',
+        function($scope, $rootScope, $window, $translate, $location, $interval, $filter, fileManagerConfig, Item, FileNavigator, ApiMiddleware, CommonMessagingService) {
 
         var $storage = $window.localStorage;
         $scope.config = fileManagerConfig;
@@ -19,6 +19,48 @@
         $scope.viewTemplate = $storage.getItem('viewTemplate') || 'main-icons.html';
         $scope.fileList = [];
         $scope.temps = [];
+        console.log($scope.fileNavigator);
+
+        
+
+       /*  $scope.commentList =[ {
+			"name": "Teszt Elek",
+			"date": "2017.12.19.",
+			"comment": "Ez egy comment a mondathoz",
+			"email": "tesztelek@teszt.hu"
+		},{
+			"name": "Teszt Elena",
+			"date": "2017.12.19.",
+			"comment": "Ez egy comment a mondathoz, más személytőőőőőőől",
+			"email": "jnagy@monguz.hu"
+        }]; */
+        
+        $scope.addComments = function(path){
+            var comment ={
+                "userName": $rootScope.activeUser.lastName+" "+$rootScope.activeUser.firstName,
+                "userEmail": $rootScope.activeUser.email,
+                "path": path[0].model.fullPath(),
+                "commentText": $scope.commentText,
+                "userId": "c123e31e-5df7-4c17-ac31-07fa4abde231" 
+            }
+            console.log(path);
+            CommonMessagingService.saveComment(comment).then(function(success){
+                $scope.commentText = '';
+                listComment(path);
+            })
+			/* $scope.commentList.push({"name": $rootScope.activeUser.lastName+" "+$rootScope.activeUser.firstName, "date": "2018.01.03.", "comment": $scope.commentText, "email": $rootScope.activeUser.email});
+			
+			$scope.commentText = ''; */
+		}
+
+		$scope.deleteComment = function(id, path){
+            CommonMessagingService.deleteComment(id).then(
+                function(success) {
+                    listComment(path);
+                }, 
+                function(error) {}
+            );
+		}
 
         $scope.$watch('temps', function() {
             if ($scope.singleSelection()) {
@@ -102,7 +144,18 @@
                 return;
             }
             $scope.temps = [item];
+            listComment($scope.temps);
+            
         };
+
+        function listComment(path){
+            if(path && path[0].model.type=== 'file'){
+                CommonMessagingService.getComment(path[0].model.fullPath()).then(function(response){
+                    $scope.commentList = response.data
+                    console.log($scope.commentList)
+                }) 
+            }
+        }
 
         $scope.singleSelection = function() {
             return $scope.temps.length === 1 && $scope.temps[0];
@@ -360,6 +413,10 @@
 
         $scope.removeFromUpload = function(index) {
             $scope.uploadFileList.splice(index, 1);
+        };
+
+        $scope.addComment = function(index) {
+            $scope.modal('comment');
         };
 
         $scope.uploadFiles = function() {

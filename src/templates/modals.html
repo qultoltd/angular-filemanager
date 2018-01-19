@@ -482,6 +482,40 @@
   </div>
 </div>
 
+<div class="modal animated fadeIn" id="comment">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <form>
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal">
+                  <span aria-hidden="true">&times;</span>
+                  <span class="sr-only">{{"close" | translate}}</span>
+              </button>
+              <h4 class="modal-title">{{'comment' | translate}}</h4>
+            </div>
+            <div class="modal-body comment-modal-height">
+              <textarea class="modal-comment-text" ng-model="$parent.commentText"></textarea>
+              <div class="modal-comment-button-position">
+                <button class="btn modal-comment-button" ng-click="addComments(temps)">
+                    {{'REPORT.ADD_COMMENT' | translate}}
+                </button>
+              </div>
+              <h5 class="comment-description" translate="COMMENT_DESCRIPTION" translate-values='{ commentName: temps[0].model.name, commentCount: commentList.length}'></h5>
+              <div class="modal-comment-list-box">
+                <div class="modal-comment-list" ng-repeat="list in commentList | orderBy: '-creationTime'">
+                  <div class="modal-comment-list-name">{{list.userName}} 
+                    <i ng-if="list.userEmail === activeUser.email" class="glyphicon glyphicon-trash" ng-click="deleteComment(list.id, temps)"></i>
+                  </div>
+                  <div class="modal-comment-list-date" >{{list.creationTime | date:'yyyy.MM.dd. HH:mm'}}</div>
+                  <div class="modal-comment-list-comment">{{list.commentText}}</div>
+                </div>
+              </div> 
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
 <script type="text/ng-template" id="path-selector">
   <div class="panel panel-primary mt10 mb0">
     <div class="panel-body">

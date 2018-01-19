@@ -98,7 +98,8 @@
             new_folder: 'Új könyvtár',
             download_as_zip: 'Letöltés ZIP formátumban',
             activities: 'Tevékenységek',
-            description: 'Részletek'
+            description: 'Részletek',
+            comment: 'Megjegyzés'
         });
 
         $translateProvider.translations('en', {
@@ -200,7 +201,8 @@
             open: 'Open',
             these_elements: 'these {{total}} elements',
             new_folder: 'New folder',
-            download_as_zip: 'Download as ZIP'
+            download_as_zip: 'Download as ZIP',
+            comment: 'Comment'
         });
 
         $translateProvider.translations('nl', {
