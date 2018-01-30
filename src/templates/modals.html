@@ -504,7 +504,7 @@
               <div class="modal-comment-list-box">
                 <div class="modal-comment-list" ng-repeat="list in commentList | orderBy: '-creationTime'">
                   <div class="modal-comment-list-name">{{list.userName}} 
-                    <i ng-if="list.userEmail === activeUser.email" class="glyphicon glyphicon-trash" ng-click="deleteComment(list.id, temps)"></i>
+                    <i ng-if="list.userEmail === activeUser.email" class="glyphicon glyphicon-trash" ng-click="deleteCommentModal(list.id)"></i>
                   </div>
                   <div class="modal-comment-list-date" >{{list.creationTime | date:'yyyy.MM.dd. HH:mm'}}</div>
                   <div class="modal-comment-list-comment">{{list.commentText}}</div>
@@ -512,6 +512,29 @@
               </div> 
             </div>
         </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal animated fadeIn" id="deleteComment">
+  <div class="modal-dialog comment-delete-modal">
+    <div  class="modal-content">
+    <form ng-submit="deleteComment(commentToDelete, temps)">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">{{"close" | translate}}</span>
+        </button>
+        <h4 class="modal-title">{{"comment_delete" | translate}}</h4>
+      </div>
+      <div class="modal-body">
+        {{'sure_to_delete' | translate}}
+      </div>
+      <div class="modal-footer text-center">
+        <button type="button" class="btn btn-default btn-xs" data-dismiss="modal">{{"cancel" | translate}}</button>
+        <button type="submit" class="btn btn-primary btn-xs">{{"remove" | translate}}</button>
+      </div>
+      </form>
     </div>
   </div>
 </div>

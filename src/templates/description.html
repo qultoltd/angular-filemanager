@@ -17,8 +17,19 @@
           <div class="col-sm-12">
             {{ report.reportName }}
             <span ng-if="report.reportStatus === 'SUCCESS'" ng-class="getClassForScore(report.overallScore)">{{ report.overallScore * 100 | number:0}}%</span>
+            <span ng-if="report.commentCount > 0">
+              <i class="glyphicon glyphicon-comment report-comment-count" title="{{'commentCount' | translate}}: {{report.commentCount}}">
+                <span class="comment-count">{{report.commentCount}}</span>
+              </i>
+            </span>
           </div>
         </div>
+
+        <!-- <div class="row">
+          <div class="col-sm-12">
+            <label>{{ 'commentCount' | translate }}: </label>{{ report.commentCount }}
+          </div>
+        </div> -->
 
         <div class="row">
           <div class="col-sm-12">
