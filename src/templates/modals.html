@@ -332,8 +332,15 @@
               <h4 class="modal-title">{{'new_folder' | translate}}</h4>
             </div>
             <div class="modal-body">
-              <label class="radio">{{'folder_name' | translate}}</label>
-              <input class="form-control" ng-model="temps[0].tempModel.name" autofocus="autofocus">
+              <div class="col-md-9">
+                <label class="radio">{{'folder_name' | translate}}</label>
+                <input class="form-control" ng-model="temps[0].tempModel.name" autofocus="autofocus">
+              </div>
+              <div class="col-md-3">
+                <label class="radio">{{'max_section_length' | translate}}</label>
+                <input class="form-control" ng-model="temps[0].tempModel.maxSectionLength" autofocus="autofocus">
+              </div>
+
               <div ng-include data-src="'error-bar'" class="clearfix"></div>
             </div>
             <div class="modal-footer text-center">

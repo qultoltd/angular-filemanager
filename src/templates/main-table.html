@@ -41,6 +41,14 @@
                     <span class="sortorder" ng-show="predicate[1] === 'model.owner'" ng-class="{reverse:reverse}"></span>
                 </a>
             </th>
+
+            <th class="hidden-xs" ng-hide="config.hideMaxSectionLength">
+                <a href="" ng-click="order('model.maxSectionLength')">
+                    {{"max_section_length" | translate}}
+                    <span class="sortorder" ng-show="predicate[1] === 'model.maxSectionLength'" ng-class="{reverse:reverse}"></span>
+                </a>
+            </th>
+
         </tr>
     </thead>
     <tbody class="file-item">
@@ -83,6 +91,11 @@
             </td>
             <td class="hidden-sm hidden-xs" ng-hide="config.hideOwner || shouldDescriptionBeOpen()">
                 {{item.model.owner}}
+            </td>
+            <td class="hidden-xs">
+                <span ng-show="!config.hideMaxSectionLength">
+                    {{item.model.maxSectionLength}}
+                </span>
             </td>
         </tr>
     </tbody>

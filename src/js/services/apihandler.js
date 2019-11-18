@@ -388,12 +388,13 @@
             return deferred.promise;
         };
 
-        ApiHandler.prototype.createFolder = function(apiUrl, path) {
+        ApiHandler.prototype.createFolder = function(apiUrl, path, maxSectionLength) {
             var self = this;
             var deferred = $q.defer();
             var data = {
                 action: 'createFolder',
-                newPath: path
+                newPath: path,
+                maxSectionLength: maxSectionLength
             };
 
             self.inprocess = true;

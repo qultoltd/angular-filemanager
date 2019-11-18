@@ -23,7 +23,8 @@
                 order: model && parseInt(model.order || 0),
                 base: model && model.base,
                 processingStatus: model && model.processingStatus,
-                owner: model && model.owner
+                owner: model && model.owner,
+                maxSectionLength: model && model.maxSectionLength
             };
 
             this.error = '';

@@ -133,7 +133,8 @@
 
         ApiMiddleware.prototype.createFolder = function(item) {
             var path = item.tempModel.fullPath();
-            return this.apiHandler.createFolder(fileManagerConfig.createFolderUrl, path);
+            var maxSectionLength = item.tempModel.maxSectionLength;
+            return this.apiHandler.createFolder(fileManagerConfig.createFolderUrl, path, maxSectionLength);
         };
 
         ApiMiddleware.prototype.startReportGeneration = function(report) {
