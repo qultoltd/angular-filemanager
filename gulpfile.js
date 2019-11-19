@@ -39,7 +39,7 @@ gulp.task('concat-uglify-js', ['cache-templates'], function() {
       dst + '/' + jsFile
     ])
     .pipe(concat(jsFile))
-    //.pipe(uglify())
+    .pipe(uglify())
     .pipe(gulp.dest(dst));
 });
 
