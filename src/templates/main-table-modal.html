@@ -20,9 +20,9 @@
             <td>
                 {{"no_folders_in_folder" | translate}}...
             </td>
-            <td class="text-right">
+            <!--<td class="text-right">
                 <button class="btn btn-sm btn-default" ng-click="fileNavigator.upDir()">{{"go_back" | translate}}</button>
-            </td>
+            </td>-->
         </tr>
         <tr ng-show="!fileNavigator.requesting && fileNavigator.error">
             <td colspan="2">
@@ -30,17 +30,25 @@
             </td>
         </tr>
         <tr ng-repeat="item in fileNavigator.fileList | orderBy:predicate:reverse track by $index" ng-show="!fileNavigator.requesting && item.model.type === 'dir'" ng-if="!selectedFilesAreChildOfPath(item)">
+            
             <td>
+                <input type="checkbox"
+                  value="{{item.model.name}}"
+                  ng-checked="isChecked(item)"
+                  ng-click="toggleSelection(item)" />
+
                 <a href="" ng-click="fileNavigator.folderClick(item)" title="{{item.model.name}} ({{item.model.size | humanReadableFileSize}})">
                     <i class="glyphicon glyphicon-folder-close"></i>
-                    {{item.model.name | translate | strLimit : 32}}
+                    {{item.model.nameVariables && item.model.nameVariables.organizationName ? item.model.nameVariables.organizationName : item.model.name | translate | strLimit : 32}}
+                    <!--{{ translateDirName(item.model.name) }}-->
                 </a>
             </td>
-            <td class="text-right">
+            <!--<td class="text-right">
+                
                 <button class="btn btn-sm btn-default" ng-click="select(item)">
                     <i class="glyphicon glyphicon-hand-up"></i> {{"select_this" | translate}}
                 </button>
-            </td>
+            </td>-->
         </tr>
     </tbody>
 </table>

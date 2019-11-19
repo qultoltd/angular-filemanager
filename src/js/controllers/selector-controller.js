@@ -7,6 +7,7 @@
         $scope.predicate = ['model.type', 'model.name'];
         $scope.fileNavigator = new FileNavigator();
         $rootScope.selectedModalPath = [];
+        $rootScope.reportDirFilters = [];
 
         $scope.order = function(predicate) {
             $scope.reverse = ($scope.predicate[1] === predicate) ? !$scope.reverse : false;
@@ -52,6 +53,34 @@
                 result += '/' + $scope.singleSelection().tempModel.name;
             }
             return result.replace(/\/\//, '/');
+        };
+
+        function getIndexInReportDirFilters(item) {
+          var foundIdx = -1;
+          
+          for (var idx in $rootScope.reportDirFilters) {
+
+            var filter = $rootScope.reportDirFilters[idx];
+            if(item.model.name === filter.model.name &&
+              item.model.path.join() === filter.model.path.join()) {
+                foundIdx = idx;
+                break;
+            }
+          }
+          return foundIdx;
+        }
+
+        $scope.isChecked = function(item) {
+          return getIndexInReportDirFilters(item) > -1;
+        };
+
+        $scope.toggleSelection = function(item) {
+          var idx = getIndexInReportDirFilters(item);
+          if (idx > -1) {
+            $rootScope.reportDirFilters.splice(idx, 1);
+          } else {
+            $rootScope.reportDirFilters.push(item);
+          }
         };
 
     }]);

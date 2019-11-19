@@ -423,6 +423,13 @@
 
           report.filePath = path;
           report.fileName = name;
+          
+          report.includedCorpuses = [];
+          for (var idx in $rootScope.reportDirFilters) {
+            var fullPath = $rootScope.reportDirFilters[idx].model.fullPath();
+            report.includedCorpuses.push(fullPath);
+          }
+          $rootScope.reportDirFilters = [];
 
           $scope.apiMiddleware.startReportGeneration(report).then(function() {
               $scope.fileNavigator.refresh();
@@ -567,7 +574,9 @@
 
         $scope.translateDirName = function(dirName) {
           var item = findItemInHistory(dirName, $scope.fileNavigator.history);
-
+          if (!item) {
+            return dirName;
+          }
           return $scope.translateItem(item);
         }
 
@@ -589,7 +598,7 @@
 
         $scope.translateItem = function(item) {
 
-          if(!item && !item.model && !item.model.name) {
+          if(!item || !item.model || !item.model.name) {
             return;
           }
           if(!item.model.base) {
