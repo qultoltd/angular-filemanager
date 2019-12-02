@@ -42,6 +42,7 @@
                     {{item.model.nameVariables && item.model.nameVariables.organizationName ? item.model.nameVariables.organizationName : item.model.name | translate | strLimit : 32}}
                     <!--{{ translateDirName(item.model.name) }}-->
                 </a>
+                <i uib-tooltip="{{'different_section_length' | translate}}: {{item.model.maxSectionLength}}" ng-if="item.model.maxSectionLength !== currentFolder.sectionLength" class="fa fa-exclamation-circle" aria-hidden="true" style="color:#f36621"></i>
             </td>
             <!--<td class="text-right">
                 
