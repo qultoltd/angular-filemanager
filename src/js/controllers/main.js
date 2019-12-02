@@ -134,8 +134,18 @@
             return item;
         };
 
+        $scope.goTo = function(key) {
+          if((key === 0 && $scope.fileNavigator.currentPath[0] === 'user') || (key === 1 && $scope.fileNavigator.currentPath[0] === 'organizations')) {
+            $scope.currentFolder.sectionLength = 200;
+          }
+          $scope.fileNavigator.goTo(key);
+        }
+
         $scope.smartClick = function(item) {
           $scope.currentFolder.sectionLength = item.model.maxSectionLength;
+          if ($scope.currentFolder.sectionLength == 0) {
+            $scope.currentFolder.sectionLength = 200;
+          }
             var pick = $scope.config.allowedActions.pickFiles;
             if (item.isFolder()) {
                 return $scope.fileNavigator.folderClick(item);
