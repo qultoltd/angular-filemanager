@@ -25,7 +25,7 @@
                 $scope.temp = $scope.singleSelection();
                 $scope.isReportOpen = true;
                 $scope.isDescriptionOpen = true;
-                if ($scope.temp.model.path && $scope.temp.model.type === 'file' && $scope.temp.model.processingStatus === 'processed') {
+                if ($scope.temps[0].model.path && $scope.temps[0].model.type === 'file' && $scope.temps[0].model.processingStatus === 'processed') {
                   //TODO: option to turn this off
                   $scope.listReports();
                 }
@@ -461,16 +461,21 @@
         };
 
         $scope.listReports = function() {
-          var path = $scope.temps[0].model.fullPath();
+          
+          if ($scope.temps[0].model.path && $scope.temps[0].model.type === 'file' 
+                && $scope.temps[0].model.processingStatus === 'processed') {
 
-          $scope.apiMiddleware.listReports(path).then(function(response) {
-            $scope.currentReports = response.result;
-            $scope.isReportOpen = true;
-            $scope.isDescriptionOpen = true;
-            $scope.reportLimit = 2;
-            $scope.isLimited = true;
-              // $scope.fileNavigator.refresh();
-          });
+            var path = $scope.temps[0].model.fullPath();
+
+            $scope.apiMiddleware.listReports(path).then(function(response) {
+              $scope.currentReports = response.result;
+              $scope.isReportOpen = true;
+              $scope.isDescriptionOpen = true;
+              $scope.reportLimit = 2;
+              $scope.isLimited = true;
+                // $scope.fileNavigator.refresh();
+            });
+          }
         };
 
         $scope.getReportLimit = function() {
@@ -561,7 +566,13 @@
         $scope.update = $interval(function () {
             $scope.fileNavigator.updateStatus();
             if ($scope.singleSelection()) {
-              $scope.listReports();
+              
+              if ($scope.temps[0].model.path && $scope.temps[0].model.type === 'file' 
+                && $scope.temps[0].model.processingStatus === 'processed') {
+                //TODO: option to turn this off
+                $scope.listReports();
+              }              
+              //$scope.listReports();
             }   
         }, 10000);
 
