@@ -20,6 +20,8 @@
         $scope.fileList = [];
         $scope.temps = [];
 
+        $scope.currentFolder = {};
+
         $scope.$watch('temps', function() {
             if ($scope.singleSelection()) {
                 $scope.temp = $scope.singleSelection();
@@ -133,6 +135,7 @@
         };
 
         $scope.smartClick = function(item) {
+          $scope.currentFolder.sectionLength = item.model.maxSectionLength;
             var pick = $scope.config.allowedActions.pickFiles;
             if (item.isFolder()) {
                 return $scope.fileNavigator.folderClick(item);
@@ -339,8 +342,9 @@
             });
         };
 
-        $scope.createFolder = function() {
+        $scope.createFolder = function(sectionLength) {
             var item = $scope.singleSelection();
+            item.tempModel.maxSectionLength = sectionLength;
             var name = item.tempModel.name;
             if (!name) {
               return $scope.apiMiddleware.apiHandler.error = $translate.instant('error_invalid_filename');
