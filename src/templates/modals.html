@@ -27,7 +27,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">
-          <span aria-hidden="true">&times;</span>
+          <span ng-click="closeReportModal()" aria-hidden="true">&times;</span>
           <span class="sr-only">{{"close" | translate}}</span>
         </button>
         <h4 class="modal-title">{{"REPORT_GENERATION_MODAL.TITLE" | translate}}</h4>
@@ -42,14 +42,14 @@
           <label class="col-xs-12">
             <input type="checkbox" ng-model="report.reportSettings.myFiles"/>
             {{'REPORT_GENERATION_MODAL.MY_FILES' | translate}}
-            <a href="" class="label label-primary" ng-click="openNavigator(['user'])">
+            <a href="" ng-if="report.reportSettings.myFiles === true" class="label label-primary" ng-click="openNavigator(['user'])">
               {{'change' | translate}}
             </a>
           </label>
           <label class="col-xs-12">
             <input type="checkbox" ng-model="report.reportSettings.institutionFiles"/>
             {{'REPORT_GENERATION_MODAL.INSTITUTION_FILES' | translate}}
-            <a href="" class="label label-primary" ng-click="openNavigator(['organizations'])">
+            <a href="" ng-if="report.reportSettings.institutionFiles === true" class="label label-primary" ng-click="openNavigator(['organizations'])">
               {{'change' | translate}}
             </a>
           </label>
@@ -61,7 +61,7 @@
           <div ng-include data-src="'error-bar'" class="clearfix"></div>
         </div>
         <div class="modal-footer text-center">
-          <button class="btn btn-default btn-xs" type="button" data-dismiss="modal">{{"close" | translate}}</button>
+          <button class="btn btn-default btn-xs" ng-click="closeReportModal()" type="button" data-dismiss="modal">{{"close" | translate}}</button>
           <button class="btn btn-primary btn-xs" type="submit">{{"REPORT_GENERATION_MODAL.START_GENERATION" | translate}}</button>
         </div>
       </form>

@@ -451,6 +451,9 @@
           });
         };
 
+        $scope.closeReportModal = function() {
+          $rootScope.reportDirFilters = [];
+        }
 
         $scope.startBatchReportGeneration = function(report) {
           $scope.batchReportStartSubmitted = true;
