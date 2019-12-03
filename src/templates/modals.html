@@ -480,7 +480,16 @@
       </div>
       <div class="modal-body">
         <div>
-            <div ng-include="config.tplPath + '/current-folder-breadcrumb.html'"></div>
+            <ol class="breadcrumb">
+                <li ng-repeat="(key, dir) in fileNavigator.currentPath track by key" ng-class="{'active':$last}" class="animated fast fadeIn">
+                    <a href="" ng-show="!$last" ng-click="fileNavigator.goTo(key)">
+                        {{ translateDirName(dir) | strLimit : 30}}
+                    </a>
+                    <span ng-show="$last">
+                        {{ translateDirName(dir) }}
+                    </span>
+                </li>
+            </ol>
             <div ng-include="config.tplPath + '/main-table-modal.html'"></div>
             <!--<hr />-->
             <!--<button class="btn btn-xs btn-default" ng-click="selectCurrent()">
