@@ -40,7 +40,8 @@
 
         <div class="text-center">
           <div ng-show="report.reportStatus === 'CREATED'" class="cancel-report-generating-button">
-            <button tabindex="-1" class="btn btn-default btn-xs" ng-click="cancelReportGeneration(report.reportId)">
+            <button ng-disabled="clickedCancelReportButtons.has(report.reportId) || report.starterProfileId != activeUser.userId"
+                  tabindex="-1" class="btn btn-default btn-xs" ng-click="cancelReportGeneration(report.reportId, activeUser.userId)">
               <i class="glyphicon glyphicon-stop"></i> {{'cancelreportgeneration' | translate}}
             </button>
             <br>
