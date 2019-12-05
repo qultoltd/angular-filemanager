@@ -451,6 +451,10 @@
           });
         };
 
+        $scope.cancelReportGeneration = function(reportId) {
+          $scope.apiMiddleware.cancelReportGeneration(reportId)
+        };
+
         $scope.closeReportModal = function() {
           $rootScope.reportDirFilters = [];
         }
