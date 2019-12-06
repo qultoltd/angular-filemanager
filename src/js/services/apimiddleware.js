@@ -141,8 +141,8 @@
             return this.apiHandler.startReportGeneration(fileManagerConfig.reportGenerationUrl, report);
         };
 
-        ApiMiddleware.prototype.cancelReportGeneration = function(reportId) {
-            return this.apiHandler.cancelReportGeneration(fileManagerConfig.cancelReportGenerationUrl, reportId);
+        ApiMiddleware.prototype.cancelReportGeneration = function(reportId, userId) {
+            return this.apiHandler.cancelReportGeneration(fileManagerConfig.cancelReportGenerationUrl, reportId, userId);
         };
 
         ApiMiddleware.prototype.startBatchReportGeneration = function(report) {
