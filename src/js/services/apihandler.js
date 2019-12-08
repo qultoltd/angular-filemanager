@@ -436,6 +436,22 @@
             return deferred.promise;
         };
 
+        ApiHandler.prototype.cancelReportGeneration = function(apiUrl, reportId, userId) {
+            const self = this;
+            const deferred = $q.defer();
+            self.inprocess = true;
+            self.error = '';
+            apiUrl += "/" + reportId + "/" + userId;
+            $http.delete(apiUrl).success(function(data, code) {
+                self.deferredHandler("",  deferred, code);
+            }).error(function(data, code) {
+                self.deferredHandler(data, deferred, code, $translate.instant('error_canceling_report_generation'));
+            })['finally'](function() {
+                self.inprocess = false;
+            });
+            return deferred.promise;
+        };
+
 
         ApiHandler.prototype.startBatchReportGeneration = function(apiUrl, report) {
             var self = this;

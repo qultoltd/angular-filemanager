@@ -22,6 +22,7 @@
             extractUrl: 'bridges/php/handler.php',
             permissionsUrl: 'bridges/php/handler.php',
             reportGenerationUrl: '',
+            cancelReportGenerationUrl: '',
             batchReportGenerationUrl: '',
             reportListUrl: '',
             reportViewBasePath: '',

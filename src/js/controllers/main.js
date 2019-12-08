@@ -19,7 +19,7 @@
         $scope.viewTemplate = $storage.getItem('viewTemplate') || 'main-icons.html';
         $scope.fileList = [];
         $scope.temps = [];
-
+        $scope.clickedCancelReportButtons = new Set();
         $scope.currentFolder = {};
 
         $scope.$watch('temps', function() {
@@ -457,6 +457,11 @@
               $scope.fileNavigator.refresh();
               $scope.modal('startreportgeneration', true);
           });
+        };
+
+        $scope.cancelReportGeneration = function(reportId, userId) {
+          $scope.clickedCancelReportButtons.add(reportId);
+          $scope.apiMiddleware.cancelReportGeneration(reportId, userId)
         };
 
         $scope.closeReportModal = function() {
