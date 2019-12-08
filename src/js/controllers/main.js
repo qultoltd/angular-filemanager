@@ -441,6 +441,14 @@
           report.includedCorpuses = [];
           for (var idx in $rootScope.reportDirFilters) {
             var fullPath = $rootScope.reportDirFilters[idx].model.fullPath();
+            if (fullPath.startsWith('/user/')) {
+              fullPath = 'user:' + $rootScope.activeUser.userId + ':' + encodeURIComponent(fullPath.split('/user/')[1]);
+            } else if (fullPath.startsWith('/organizations/')) {
+              var firstPart = fullPath.split('/').slice(2, 3)[0];
+              var secondPart = encodeURIComponent(fullPath.split('/').slice(3).join('/'));
+
+              fullPath = firstPart + ":" + secondPart;
+            }
             report.includedCorpuses.push(fullPath);
           }
           $rootScope.reportDirFilters = [];
