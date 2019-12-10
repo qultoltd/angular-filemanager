@@ -7,12 +7,40 @@
             this.apiMiddleware = new ApiMiddleware();
             this.requesting = false;
             this.fileList = [];
-            this.currentPath = [];
+            this.currentPath = getFolderPathArray();
             this.history = [];
             this.error = '';
 
             this.onRefresh = function() {};
         };
+
+            function getFolderPathArray() {
+                var folderPathArray = [];
+                const pathParamString = window.location.href.split("?", 2)[1];
+                if (pathParamString != null) {
+                    const pathParams = pathParamString.split("&");
+                    pathParams.forEach(function (path) {
+                        if (path.includes("folder=")) {
+                            folderPathArray = convertFolderPathParamToArray(path.split("=")[1]);
+                        }
+                    });
+                }
+                return folderPathArray;
+            }
+
+            function convertFolderPathParamToArray(folderString) {
+                const pathArray = [];
+                const fileUrnArray = folderString.split(':');
+                var folderArray;
+                if (fileUrnArray.length === 2) {
+                    pathArray[0] = fileUrnArray[0];
+                    folderArray = decodeURIComponent(fileUrnArray[1]).split("/").slice(0, -1);
+                    folderArray.forEach(function (folderName, i) {
+                        pathArray[i + 1] = folderName;
+                    });
+                }
+                return pathArray;
+            }
 
         FileNavigator.prototype.deferredHandler = function(data, deferred, code, defaultMsg) {
             if ((!data || typeof data !== 'object') && !defaultMsg) {
