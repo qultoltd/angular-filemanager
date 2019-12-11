@@ -517,8 +517,15 @@
         };
 
         $scope.openReport = function(reportId) {
+          saveNavigationIntoStorage(reportId);
           $location.path(fileManagerConfig.reportViewBasePath + reportId);
         };
+
+        function saveNavigationIntoStorage(reportId){
+          localStorage.setItem(reportId + "_fileList", JSON.stringify($scope.fileNavigator.fileList));
+          localStorage.setItem(reportId + "_history",   JSON.stringify($scope.fileNavigator.history));
+          localStorage.setItem(reportId + "_currentPath", JSON.stringify($scope.fileNavigator.currentPath));
+        }
 
         $scope.shouldDescriptionBeOpen = function() {
           return $scope.temps.length == 1 && $scope.temps[0].model && $scope.temps[0].model.name;

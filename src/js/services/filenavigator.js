@@ -7,39 +7,48 @@
             this.apiMiddleware = new ApiMiddleware();
             this.requesting = false;
             this.fileList = [];
-            this.currentPath = getFolderPathArray();
+            this.currentPath = [];
             this.history = [];
             this.error = '';
 
             this.onRefresh = function() {};
+            restoreFromStorage(this);
         };
 
-            function getFolderPathArray() {
-                var folderPathArray = [];
-                const pathParamString = window.location.href.split("?", 2)[1];
-                if (pathParamString != null) {
-                    const pathParams = pathParamString.split("&");
-                    pathParams.forEach(function (path) {
-                        if (path.includes("folder=")) {
-                            folderPathArray = convertFolderPathParamToArray(path.split("=")[1]);
-                        }
-                    });
+            function restoreFromStorage(fileNavigator) {
+                if (window.location.href.includes("?backFromReport=")) {
+                    const reportId = window.location.href.split("?backFromReport=", 2)[1];
+                    const fileList = localStorage.getItem(reportId + '_fileList');
+                    const currentPath = localStorage.getItem(reportId + '_currentPath');
+                    const history = localStorage.getItem(reportId + '_history');
+                    if (fileList != null && currentPath != null && history != null) {
+                        fileNavigator.fileList = JSON.parse(fileList);
+                        fileNavigator.currentPath = JSON.parse(currentPath);
+                        fileNavigator.history = JSON.parse(history);
+                        // Getting back objects from storage doesn't give us the object's type they were
+                        // and neither their functions they had in the moment of setting
+                        // Therefore they must be instantiated again
+                        instantiateFileList(fileNavigator.fileList);
+                        instantiateHistoryList(fileNavigator.history);
+                    }
                 }
-                return folderPathArray;
             }
 
-            function convertFolderPathParamToArray(folderString) {
-                const pathArray = [];
-                const fileUrnArray = folderString.split(':');
-                var folderArray;
-                if (fileUrnArray.length === 2) {
-                    pathArray[0] = fileUrnArray[0];
-                    folderArray = decodeURIComponent(fileUrnArray[1]).split("/").slice(0, -1);
-                    folderArray.forEach(function (folderName, i) {
-                        pathArray[i + 1] = folderName;
-                    });
-                }
-                return pathArray;
+            function instantiateFileList(fileList) {
+                fileList.forEach(function (file, index) {
+                    this[index] = new Item(file.model, file.model.path);
+                }, fileList);
+            }
+
+            function instantiateHistoryList(history) {
+                history.forEach(function (node) {
+                    if(node.hasOwnProperty("item")){
+                        node.item = new Item(node.item.model, node.item.model.path);
+                    }
+                    if(node.nodes.length > 0){
+                        instantiateHistoryList(node.nodes);
+                    }
+                }, history);
             }
 
         FileNavigator.prototype.deferredHandler = function(data, deferred, code, defaultMsg) {
