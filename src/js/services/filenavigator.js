@@ -12,7 +12,44 @@
             this.error = '';
 
             this.onRefresh = function() {};
+            restoreFromStorage(this);
         };
+
+            function restoreFromStorage(fileNavigator) {
+                if (window.location.href.includes("?backFromReport=")) {
+                    const reportId = window.location.href.split("?backFromReport=", 2)[1];
+                    const fileList = localStorage.getItem(reportId + '_fileList');
+                    const currentPath = localStorage.getItem(reportId + '_currentPath');
+                    const history = localStorage.getItem(reportId + '_history');
+                    if (fileList != null && currentPath != null && history != null) {
+                        fileNavigator.fileList = JSON.parse(fileList);
+                        fileNavigator.currentPath = JSON.parse(currentPath);
+                        fileNavigator.history = JSON.parse(history);
+                        // Getting back objects from storage doesn't give us the object's type they were
+                        // and neither their functions they had in the moment of setting
+                        // Therefore they must be instantiated again
+                        instantiateFileList(fileNavigator.fileList);
+                        instantiateHistoryList(fileNavigator.history);
+                    }
+                }
+            }
+
+            function instantiateFileList(fileList) {
+                fileList.forEach(function (file, index) {
+                    this[index] = new Item(file.model, file.model.path);
+                }, fileList);
+            }
+
+            function instantiateHistoryList(history) {
+                history.forEach(function (node) {
+                    if(node.hasOwnProperty("item")){
+                        node.item = new Item(node.item.model, node.item.model.path);
+                    }
+                    if(node.nodes.length > 0){
+                        instantiateHistoryList(node.nodes);
+                    }
+                }, history);
+            }
 
         FileNavigator.prototype.deferredHandler = function(data, deferred, code, defaultMsg) {
             if ((!data || typeof data !== 'object') && !defaultMsg) {
