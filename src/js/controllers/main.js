@@ -165,9 +165,9 @@
                 return $scope.apiMiddleware.download(item, true);
             }
 
-            if (item.isEditable()) {
-                return $scope.openEditItem(item);
-            }
+            // if (item.isEditable()) {
+            //     return $scope.openEditItem(item);
+            // }
         };
 
         $scope.openImagePreview = function() {

@@ -7,11 +7,11 @@
             </a>
         </li>
 
-        <li ng-show="config.allowedActions.reportgeneration && !singleSelection() && !selectionHasOtherStatusThan('processed')">
+        <!-- <li ng-show="config.allowedActions.reportgeneration && !singleSelection() && !selectionHasOtherStatusThan('processed')">
             <a href="" tabindex="-1" ng-click="modal('startbatchreportgeneration')">
                 <i class="glyphicon glyphicon-play"></i> {{'startbatchreportgeneration' | translate}}
             </a>
-        </li>
+        </li> -->
 
         <li ng-show="singleSelection() && singleSelection().isFolder()">
             <a href="" tabindex="-1" ng-click="smartClick(singleSelection())">
@@ -31,11 +31,11 @@
             </a>
         </li>
 
-        <li ng-show="config.allowedActions.downloadMultiple && !selectionHas('dir') && !singleSelection()">
+        <!-- <li ng-show="config.allowedActions.downloadMultiple && !selectionHas('dir') && !singleSelection()">
             <a href="" tabindex="-1" ng-click="download()">
                 <i class="glyphicon glyphicon-cloud-download"></i> {{'download_as_zip' | translate}}
             </a>
-        </li>
+        </li> -->
 
         <li ng-show="config.allowedActions.preview && singleSelection().isImage() && singleSelection()">
             <a href="" tabindex="-1" ng-click="openImagePreview()">
@@ -61,11 +61,11 @@
             </a>
         </li>
 
-        <li ng-show="config.allowedActions.edit && singleSelection() && singleSelection().isEditable()">
+        <!-- <li ng-show="config.allowedActions.edit && singleSelection() && singleSelection().isEditable()">
             <a href="" tabindex="-1" ng-click="openEditItem()">
                 <i class="glyphicon glyphicon-pencil"></i> {{'edit' | translate}}
             </a>
-        </li>
+        </li> -->
 
         <li ng-show="config.allowedActions.changePermissions">
             <a href="" tabindex="-1" ng-click="modal('changepermissions')">
@@ -73,11 +73,11 @@
             </a>
         </li>
 
-        <li ng-show="config.allowedActions.compress && (!singleSelection() || selectionHas('dir'))">
+        <!-- <li ng-show="config.allowedActions.compress && (!singleSelection() || selectionHas('dir'))">
             <a href="" tabindex="-1" ng-click="modal('compress')">
                 <i class="glyphicon glyphicon-compressed"></i> {{'compress' | translate}}
             </a>
-        </li>
+        </li> -->
 
         <li ng-show="config.allowedActions.extract && singleSelection() && singleSelection().isExtractable()">
             <a href="" tabindex="-1" ng-click="modal('extract')">
