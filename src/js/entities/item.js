@@ -24,7 +24,8 @@
                 base: model && model.base,
                 processingStatus: model && model.processingStatus,
                 owner: model && model.owner,
-                maxSectionLength: model && model.maxSectionLength
+                maxSectionLength: model && model.maxSectionLength,
+                showAlways: model && model.showAlways
             };
 
             this.error = '';

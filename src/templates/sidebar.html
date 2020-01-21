@@ -18,7 +18,7 @@
         <span ng-if="item.item.model.base != true">{{ (item.name.split('/').pop() || '/') | strLimit : 60 }}</span>
     </a>
     <ul class="nav nav-sidebar">
-        <li ng-repeat="item in item.nodes | orderBy:['item.model.order','name'] track by $index" ng-include="'folder-branch-item'" ng-class="{'active': item.name == fileNavigator.currentPath.join('/')}">
+        <li ng-repeat="item in item.nodes | orderBy:['item.model.order','name'] track by $index" ng-if="item.item.model.showAlways == true" ng-include="'folder-branch-item'" ng-class="{'active': item.name == fileNavigator.currentPath.join('/')}">
         </li>
     </ul>
 </script>
