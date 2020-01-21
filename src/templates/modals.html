@@ -56,6 +56,9 @@
           <label class="col-xs-12">
             <input type="checkbox" ng-model="report.reportSettings.webResources"/>
             {{'REPORT_GENERATION_MODAL.WEB_RESOURCES' | translate}}
+            <a href="" class="label label-primary" ng-click="openNavigator(['web'])">
+              {{'change' | translate}}
+            </a>
           </label>
 
           <div ng-include data-src="'error-bar'" class="clearfix"></div>
