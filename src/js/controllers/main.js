@@ -448,6 +448,12 @@
               var secondPart = encodeURIComponent(fullPath.split('/').slice(3).join('/'));
 
               fullPath = firstPart + ":" + secondPart;
+            } else if (fullPath.startsWith('/web/')) {
+              var parts = fullPath.split('/');
+              var firstpart = parts[1] ? parts[1] + ":" : "";
+              var secondPart = parts[2] ? parts[2] + ":" : "";
+              var thirdPart = parts[3] ? parts[3] + ":" : "";
+              fullPath = firstpart + secondPart + thirdPart;
             }
             report.includedCorpuses.push(fullPath);
           }

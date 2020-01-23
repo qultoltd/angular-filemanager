@@ -56,7 +56,7 @@
           <label class="col-xs-12">
             <input type="checkbox" ng-model="report.reportSettings.webResources"/>
             {{'REPORT_GENERATION_MODAL.WEB_RESOURCES' | translate}}
-            <a href="" class="label label-primary" ng-click="openNavigator(['web'])">
+            <a href="" ng-if="report.reportSettings.webResources === true" class="label label-primary" ng-click="openNavigator(['web'])">
               {{'change' | translate}}
             </a>
           </label>
