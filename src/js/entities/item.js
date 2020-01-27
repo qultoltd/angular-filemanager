@@ -25,7 +25,7 @@
                 processingStatus: model && model.processingStatus,
                 owner: model && model.owner,
                 maxSectionLength: model && model.maxSectionLength,
-                showAlways: model && model.showAlways
+                hidden: model && model.hidden
             };
 
             this.error = '';
